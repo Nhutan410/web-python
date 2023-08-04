@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chỉnh sửa bài post</title>
+</head>
+<body>
+    <h1>Chỉnh sửa bài post</h1>
+    <form action="{{ url_for('edit_post', post_id=post.id) }}" method="post">
+        <label for="title">Tiêu đề:</label>
+        <input type="text" id="title" name="title" value="{{ post.title }}" required><br>
+
+        <label for="content">Nội dung:</label><br>
+        <textarea id="content" name="content" rows="4" required>{{ post.content }}</textarea><br>
+
+        <button type="submit">Lưu</button>
+        <a href="{{ url_for('home') }}">Hủy</a>
+    </form>
+</body>
+</html>

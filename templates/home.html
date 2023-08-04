@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Trang chủ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            position: relative;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            background-color: #f44336;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .logout-btn:hover {
+            background-color: #d32f2f;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .post {
+            border-bottom: 1px solid #ccc;
+            padding: 10px 0;
+        }
+
+        .post-title {
+            font-size: 24px;
+            margin-bottom: 5px;
+            cursor: pointer;
+        }
+
+        .post-content {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .post-content p {
+            margin: 0;
+        }
+
+        .post-content img {
+            max-width: 100%;
+            margin: 10px 0;
+        }
+
+        .post-content video {
+            max-width: 100%;
+            margin: 10px 0;
+        }
+
+        .post-form {
+            margin-bottom: 20px;
+            display: {% if session.username and is_admin %}block{% else %}none{% endif %};
+        }
+
+        .post-form h2 {
+            margin-bottom: 10px;
+        }
+
+        .post-form label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .post-form input[type="text"],
+        .post-form textarea,
+        .post-form input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .post-form input[type="submit"] {
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2px;
+            background-color: #333;
+            color: #fff;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+        }
+        /* Thêm CSS cho nút chat */
+        .chat-btn {
+            background-color: #008CBA;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 20px;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .chat-btn:hover {
+            background-color: #007DA7;
+        }
+
+        /* CSS for chat container */
+        .chat-container {
+            display: none;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            background-color: #fff;
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            max-width: 400px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 9999;
+        }
+
+        .chat-message {
+            margin-bottom: 10px;
+        }
+
+        .chat-message.user-message {
+            text-align: right;
+        }
+
+        .chat-message.bot-message {
+            text-align: left;
+        }
+
+        .chat-message p {
+            margin: 0;
+            padding: 8px;
+            border-radius: 5px;
+        }
+
+        /* CSS for input box in chat container */
+        .chat-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Xin chào, {{ username }}</h1>
+        {% if session.username %}
+            <a href="/logout" class="logout-btn">Logout</a>
+        {% endif %}
+    </header>
+
+    <div class="container">
+        <div class="post-form">
+            {% if session.username and is_admin %}
+                <h2>New Post</h2>
+                <form action="/" method="post" enctype="multipart/form-data">
+                    <label for="title">Title:</label>
+                    <input type="text" id="title" name="title" required><br>
+
+                    <label for="content">Detail:</label>
+                    <textarea id="content" name="content" rows="4" required></textarea><br>
+
+                    <label for="file">File:</label>
+                    <input type="file" id="file" name="file"><br>
+
+                    <input type="submit" value="Post">
+                </form>
+                <hr>
+            {% endif %}
+        </div>
+
+        {% for post in posts %}
+            <div class="post">
+                <h2 class="post-title" onclick="toggleContent(this)">{{ post.title }}</h2>
+                <div class="post-content">
+                    <p>{{ post.content }}</p>
+                    {% if post.file_path %}
+                        {% if post.file_path.endswith('.mp4') or post.file_path.endswith('.avi') or post.file_path.endswith('.mkv') or post.file_path.endswith('.mov') %}
+                            <video controls>
+                                <source src="{{ url_for('static', filename=post.file_path) }}" type="video/mp4">
+                                <source src="{{ url_for('static', filename=post.file_path) }}" type="video/avi">
+                                <source src="{{ url_for('static', filename=post.file_path) }}" type="video/mkv">
+                                <source src="{{ url_for('static', filename=post.file_path) }}" type="video/quicktime">
+                                Your browser does not support the video tag.
+                            </video>
+                        {% else %}
+                            <img src="{{ url_for('static', filename=post.file_path) }}" alt="Image">
+                        {% endif %}
+                    {% endif %}
+                </div>
+                {% if session.username and is_admin %}
+                    <div class="post-actions">
+                        <!-- Nút "Chỉnh sửa" -->
+                        <a href="{{ url_for('edit_post', post_id=post.id) }}"><i class="far fa-edit"></i> Edit</a>
+                        <!-- Nút "Xóa" -->
+                        <a href="{{ url_for('delete_post', post_id=post.id) }}"><i class="far fa-trash-alt"></i> Delete</a>
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Khung chat -->
+    <div class="chat-container" id="chat-container">
+        <div class="chat-message bot-message">
+            <p>Chào bạn, tôi là ChatGPT. Hãy gõ câu hỏi của bạn để bắt đầu trò chuyện.</p>
+        </div>
+
+        <!-- Ô gõ câu hỏi -->
+        <input type="text" id="user-input" class="chat-input" placeholder="Gõ câu hỏi và nhấn Enter..." onkeypress="handleKeyPress(event)">
+    </div>
+
+    <!-- Nút chat -->
+    <a href="#" class="chat-btn" onclick="toggleChat()">Chat with ChatGPT</a>
+
+    <script>
+        function toggleContent(titleElement) {
+            const contentElement = titleElement.nextElementSibling;
+            contentElement.style.display = contentElement.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Hiển thị hoặc ẩn khung chat
+        function toggleChat() {
+            const chatContainer = document.getElementById('chat-container');
+            if (chatContainer.style.display === 'block') {
+                chatContainer.style.display = 'none';
+            } else {
+                chatContainer.style.display = 'block';
+            }
+        }
+
+        // Xử lý sự kiện nhấn Enter trong ô gõ câu hỏi
+        function handleKeyPress(event) {
+            if (event.keyCode === 13) {
+                sendMessage();
+            }
+        }
+
+        // Gửi câu hỏi từ người dùng lên server và hiển thị câu trả lời
+        function sendMessage() {
+            const userMessage = document.getElementById('user-input').value;
+            if (userMessage.trim() === '') return;
+
+            const chatContainer = document.getElementById('chat-container');
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.classList.add('chat-message', 'user-message');
+            userMessageDiv.innerHTML = '<p>' + userMessage + '</p>';
+            chatContainer.appendChild(userMessageDiv);
+
+            // Gửi câu hỏi từ người dùng lên server
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    user_input: userMessage
+                })
+            })
+            .then(response => response.text())
+            .then(data => {
+                const botMessageDiv = document.createElement('div');
+                botMessageDiv.classList.add('chat-message', 'bot-message');
+                botMessageDiv.innerHTML = '<p>' + data + '</p>';
+                chatContainer.appendChild(botMessageDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            });
+
+            // Xóa nội dung câu hỏi trong ô gõ sau khi gửi
+            document.getElementById('user-input').value = '';
+        }
+    </script>
+    <footer>
+
+        designed by Nhut An.
+
+    </footer>
+</body>
+</html>
+    

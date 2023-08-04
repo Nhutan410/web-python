@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}{% endblock %}</title>
+    <!-- Bao gồm các tập tin CSS và thư viện JavaScript cần thiết -->
+    <!-- ... (Các tập tin CSS và JavaScript khác) ... -->
+</head>
+<body>
+    <!-- Phần header của trang web -->
+    <header>
+        <h1>Chat with ChatGPT</h1>
+        <!-- Các phần khác của header (nếu có) -->
+    </header>
+
+    <!-- Nội dung chính của trang web -->
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Phần footer của trang web -->
+    <footer>
+        <p>&copy; Designed by Nhut An.</p>
+    </footer>
+
+    <!-- Các tập tin JavaScript cần thiết (nếu có) -->
+    <!-- ... (Các tập tin JavaScript khác) ... -->
+</body>
+</html>

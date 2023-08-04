@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Chat with ChatGPT{% endblock %}
+
+{% block content %}
+<div class="chat-box">
+    <h2>Chat with ChatGPT</h2>
+    <div class="chat-log" id="chat-log"></div>
+    <input type="text" id="user-input" placeholder="Type your message here...">
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<!-- Đoạn mã JavaScript để xử lý chat -->
+<script>
+    function sendMessage() {
+        const userInputElement = document.getElementById("user-input");
+        const userMessage = userInputElement.value.trim();
+
+        if (userMessage) {
+            const chatLogElement = document.getElementById("chat-log");
+            const userMessageElement = document.createElement("div");
+            userMessageElement.className = "user-message";
+            userMessageElement.textContent = "You: " + userMessage;
+            chatLogElement.appendChild(userMessageElement);
+
+            userInputElement.value = "";
+
+            // Gửi tin nhắn của người dùng tới máy chủ
+            fetch("/chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: "user_input=" + encodeURIComponent(userMessage)
+            })
+            .then(response => response.text())
+            .then(aiResponse => {
+                const aiMessageElement = document.createElement("div");
+                aiMessageElement.className = "ai-message";
+                aiMessageElement.textContent = "ChatGPT: " + aiResponse;
+                chatLogElement.appendChild(aiMessageElement);
+            })
+            .catch(error => {
+                console.error("Error fetching AI response:", error);
+            });
+        }
+    }
+</script>
+{% endblock %}

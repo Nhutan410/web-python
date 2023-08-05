@@ -13,37 +13,27 @@
 <!-- Đoạn mã JavaScript để xử lý chat -->
 <script>
     function sendMessage() {
-        const userInputElement = document.getElementById("user-input");
-        const userMessage = userInputElement.value.trim();
+        var user_input = document.getElementById("user-input").value;
+        addMessage("User: " + user_input);
 
-        if (userMessage) {
-            const chatLogElement = document.getElementById("chat-log");
-            const userMessageElement = document.createElement("div");
-            userMessageElement.className = "user-message";
-            userMessageElement.textContent = "You: " + userMessage;
-            chatLogElement.appendChild(userMessageElement);
+        // Make an AJAX request to the Flask backend
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/chat", true);
+        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                var response = JSON.parse(xhr.responseText);
+                addMessage(response.response);
+            }
+        };
+        xhr.send("user_input=" + encodeURIComponent(user_input));
+    }
 
-            userInputElement.value = "";
-
-            // Gửi tin nhắn của người dùng tới máy chủ
-            fetch("/chat", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded"
-                },
-                body: "user_input=" + encodeURIComponent(userMessage)
-            })
-            .then(response => response.text())
-            .then(aiResponse => {
-                const aiMessageElement = document.createElement("div");
-                aiMessageElement.className = "ai-message";
-                aiMessageElement.textContent = "ChatGPT: " + aiResponse;
-                chatLogElement.appendChild(aiMessageElement);
-            })
-            .catch(error => {
-                console.error("Error fetching AI response:", error);
-            });
-        }
+    function addMessage(message) {
+        var chatWindow = document.getElementById("chat-window");
+        var messageElement = document.createElement("div");
+        messageElement.innerText = message;
+        chatWindow.appendChild(messageElement);
     }
 </script>
 {% endblock %}

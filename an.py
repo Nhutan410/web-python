@@ -55,7 +55,7 @@ def is_admin():
 
 # Function để sử dụng GPT-3.5 API của OpenAI để trả lời chat
 def generate_gpt3_response(prompt):
-    openai.api_key = "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"  # Thay thế bằng mã khóa API của bạn
+    openai.api_key = "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"  # Thay thế bằng mã khóa API của bạn
     response = openai.Completion.create(
         engine="text-davinci-002",  # GPT-3.5 engine
         prompt=prompt,
@@ -101,11 +101,9 @@ def home():
 # Route for handling the chat
 @app.route("/chat", methods=["POST"])
 def chat():
-    if request.method == "POST":
-        user_input = request.form.get("user_input", "")
-        prompt = f"User: {user_input}\nAI:"
-        ai_response = generate_gpt3_response(prompt)
-        return ai_response
+    user_input = request.get_json().get("user_input")
+    ai_response = generate_gpt3_response(user_input)
+    return ai_response
 
 # Trang đăng ký
 @app.route("/register", methods=["GET", "POST"])
